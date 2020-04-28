@@ -1,6 +1,4 @@
-FROM mattf/spark-base:2.2.1
-
-MAINTAINER Matthew Farrellee <matt@cs.wisc.edu>
+FROM mattf/spark-base
 
 ADD start.sh /
 
