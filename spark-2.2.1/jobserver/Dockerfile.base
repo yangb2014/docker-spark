@@ -1,0 +1,23 @@
+FROM mattf/spark-base
+
+# spark-jobserver 0.8.0
+ADD spark-jobserver0.8.0.tgz /usr/local
+RUN ln -s  /usr/local/spark-jobserver0.8.0  /usr/local/spark-jobserver
+
+ENV JOBSERVER_HOME=/usr/local/spark-jobserver
+ENV PATH=$PATH:$JOBSERVER_HOME
+
+EXPOSE 8092
+
+RUN ["mkdir", "-p", "\/database"]
+VOLUME ["\/database"]
+
+# spark-driver log
+ENV LOG_DIR=/tmp/billing
+
+# dependent-libs and shell
+ADD app /app
+
+# start spark-jobserver
+CMD ["/usr/local/spark-jobserver/server_start.sh"]
+

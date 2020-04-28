@@ -1,0 +1,14 @@
+FROM mattf/spark-jobserver-base
+
+# standalone
+ENV SPARK_MASTER="spark://spark-master:7077"
+
+# docker.conf
+RUN rm -f $JOBSERVER_HOME/docker.conf && cp /app/conf/docker.conf.standalone $JOBSERVER_HOME/docker.conf
+
+EXPOSE 18080
+
+# start spark-jobserver
+ADD start_standalone.sh / 
+ENTRYPOINT ["/start_standalone.sh"]
+

@@ -15,3 +15,7 @@ https://github.com/sequenceiq/docker-spark
 * ```docker run -d -p 8082:8081 --name spark-worker2 --hostname spark-worker2  -v /tmp/docker-spark-worker:/tmp -e SPARK_MASTER_SERVICE_HOST="10.0.251.102" -e SPARK_WORKER_START_ARGS="--cores 4 --memory 4g --work-dir /tmp/spark-work" -e SPARK_WORKER_OPTS="-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.interval=1800 -Dspark.worker.cleanup.appDataTtl=86400" <name>/spark-worker:2.2.1```
 * ```docker run -d -p 8083:8081 --name spark-worker3 --hostname spark-worker3  -v /tmp/docker-spark-worker:/tmp -e SPARK_MASTER_SERVICE_HOST="10.0.251.102" -e SPARK_WORKER_START_ARGS="--cores 4 --memory 4g --work-dir /tmp/spark-work" -e SPARK_WORKER_OPTS="-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.interval=1800 -Dspark.worker.cleanup.appDataTtl=86400" <name>/spark-worker:2.2.1```
    
+# spark-jobserver (Deprecated)
+   
+https://github.com/spark-jobserver/spark-jobserver   
+   

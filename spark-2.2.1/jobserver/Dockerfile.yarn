@@ -1,0 +1,19 @@
+FROM mattf/spark-jobserver-base
+
+# yarn-conf
+ENV YARN_CONF_DIR=/etc/hadoop/conf.cloudera.yarn
+ENV HADOOP_CONF_DIR=$YARN_CONF_DIR
+#ADD conf.cloudera.yarn.tar.gz $YARN_CONF_DIR
+RUN chmod +x $YARN_CONF_DIR/*.sh $YARN_CONF_DIR/*.py
+
+EXPOSE 32456-32472
+
+# hosts for yarn-cluster
+ADD cdh-hosts.sh /
+
+# yarn
+ENV SPARK_MASTER="yarn-client"
+
+# docker.conf
+RUN rm -f $JOBSERVER_HOME/docker.conf && cp /app/conf/docker.conf.yarn $JOBSERVER_HOME/docker.conf
+

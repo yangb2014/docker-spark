@@ -1,0 +1,129 @@
+# Template for Spark Job Server Docker config
+# You can easily override the spark master through SPARK_MASTER env variable
+#
+# Spark Cluster / Job Server configuration
+spark {
+  #
+  master = "yarn-client"
+  master = ${?SPARK_MASTER}
+
+  # Default # of CPUs for jobs to use for Spark standalone cluster
+  job-number-cpus = 4
+
+  jobserver {
+    port = 8092
+
+    # https://github.com/spark-jobserver/spark-jobserver#context-per-jvm
+    context-per-jvm = true 
+
+    # Default client mode will start up a new JobManager int local machine
+    # You can use mesos-cluster mode with REMOTE_JOBSERVER_DIR and MESOS_SPARK_DISPATCHER
+    # environment value set in xxxx.sh file to launch JobManager in remote node
+    # Mesos will take responsibility to offer resource to the JobManager process
+    driver-mode = client
+
+    # Note: JobFileDAO is deprecated from v0.7.0 because of issues in
+    # production and will be removed in future, now defaults to H2 file.
+    jobdao = spark.jobserver.io.JobSqlDAO
+
+    filedao {
+      rootdir = /database/filedao/data
+    }
+
+    datadao {
+      # storage directory for files that are uploaded to the server
+      # via POST/data commands
+      rootdir = /database/upload
+    }
+
+    sqldao {
+      # Slick database driver, full classpath
+      slick-driver = slick.driver.H2Driver
+
+      # JDBC driver, full classpath
+      jdbc-driver = org.h2.Driver
+
+      # Directory where default H2 driver stores its data. Only needed for H2.
+      rootdir = /database/sqldao/data
+
+      # Full JDBC URL / init string, along with username and password.  Sorry, needs to match above.
+      # Substitutions may be used to launch job-server, but leave it out here in the default or tests won't pass
+      jdbc {
+        url = "jdbc:h2:file:/database/sqldao/data/h2-db;AUTO_SERVER=TRUE"
+        user = ""
+        password = ""
+      }
+
+      # DB connection pool settings
+      dbcp {
+        enabled = false
+        maxactive = 20
+        maxidle = 10
+        initialsize = 10
+      }
+    }
+    # When using chunked transfer encoding with scala Stream job results, this is the size of each chunk
+    result-chunk-size = 1m
+
+    # Time out for job server to wait while creating yarn-contexts
+    yarn-context-creation-timeout = 300s
+  }
+
+  # predefined Spark contexts
+  # contexts {
+  #   my-low-latency-context {
+  #     num-cpu-cores = 1           # Number of cores to allocate.  Required.
+  #     memory-per-node = 512m         # Executor memory per node, -Xmx style eg 512m, 1G, etc.
+  #   }
+  #   # define additional contexts here
+  # }
+
+  # universal context configuration.  These settings can be overridden, see README.md
+  context-settings {
+    # choose a port that is free on your system and also the 16 (depends on max retries for submitting the job) next portnumbers should be free 
+    spark.driver.port = 32456 # important
+
+    # defines the place where your spark-assembly jar is located in your hdfs
+    #spark.yarn.jar = "hdfs://dp-129.bigdata.startimes:8020/user/root/spark-assembly-1.6.0-hadoop2.6.0.jar" # important
+
+    # defines the YARN queue the job is submitted to
+    #spark.yarn.queue = root.myYarnQueue
+
+    # https://github.com/spark-jobserver/spark-jobserver/blob/master/doc/yarn.md#important-context-settings-for-yarn
+    spark.executor.instances = 4
+
+    #num-cpu-cores = 2           # Number of cores to allocate.  Required.
+    memory-per-node = 1536m         # Executor memory per node, -Xmx style eg 512m, #1G, etc.
+
+    # in case spark distribution should be accessed from HDFS (as opposed to being installed on every mesos slave)
+    # spark.executor.uri = "hdfs://namenode:8020/apps/spark/spark.tgz"
+
+    # uris of jars to be loaded into the classpath for this context. Uris is a string list, or a string separated by commas ','
+    dependent-jar-uris = ["file:///app/libs/ojdbc6.jar"]
+
+    # If you wish to pass any settings directly to the sparkConf as-is, add them here in passthrough,
+    # such as hadoop connection settings that don't use the "spark." prefix
+    passthrough {
+      #es.nodes = "192.1.1.1"
+      #spark.driver.allowMultipleContexts = true # Ignore the Multiple context exception related with SPARK-2243
+      spark.executor.cores = 1  # 1 in YARN mode, all the available cores on the worker in standalone mode.
+    }
+  }
+
+  # This needs to match SPARK_HOME for cluster SparkContexts to be created successfully
+  home = "/usr/local/spark"
+}
+
+// https://stackoverflow.com/questions/27986864/spark-job-server-the-server-was-not-able-to-produce-a-timely-response-to-your
+spray.can.server {
+      idle-timeout = infinite
+      request-timeout = infinite
+}
+
+deploy {
+  # context-per-jvm
+  manager-start-cmd = "manager_start.sh"
+}
+
+# Note that you can use this file to define settings not only for job server,
+# but for your Spark jobs as well.  Spark job configuration merges with this configuration file as defaults.
