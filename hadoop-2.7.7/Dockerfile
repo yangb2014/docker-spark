@@ -8,13 +8,14 @@ WORKDIR /root
 RUN apt-get update && apt-get install -y openssh-server openjdk-8-jdk wget
 
 # install hadoop 2.7.7
-RUN wget https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+#RUN wget https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+RUN wget https://mirror.bit.edu.cn/apache/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
     tar -xzvf hadoop-2.7.7.tar.gz && \
     mv hadoop-2.7.7 /usr/local/hadoop && \
     rm hadoop-2.7.7.tar.gz
 
 # set environment variable
-ENV JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk 
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 
 ENV HADOOP_HOME=/usr/local/hadoop 
 ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin 
 
